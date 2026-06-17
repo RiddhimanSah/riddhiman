@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Facts Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .fact-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            line-height: 1.6;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .fact-text {
+            font-style: italic;
+        }
+
+        button {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .fact-counter {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .fact-box {
+                min-height: 120px;
+                font-size: 1.1em;
+                padding: 20px;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Random Facts</h1>
+        <p class="subtitle">Click the button to discover amazing facts!</p>
+
+        <div class="fact-box">
+            <div class="fact-text" id="fact">
+                Click "New Fact" to get started!
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="displayNewFact()">📚 New Fact</button>
+            <button onclick="shareOnTwitter()">🐦 Share</button>
+            <button onclick="copyFact()">📋 Copy</button>
+        </div>
+
+        <div class="fact-counter">
+            <p>Fact <span id="factNumber">0</span> of <span id="totalFacts">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        const facts = [
+            "Honey never spoils. Archaeologists have found 3,000-year-old honey in Egyptian tombs that was still perfectly edible.",
+            "A group of flamingos is called a 'flamboyance'.",
+            "The shortest war in history lasted only 38 minutes between Britain and Zanzibar in 1896.",
+            "Octopuses have three hearts - two pump blood to the gills, while the third pumps it to the rest of the body.",
+            "The smell of fresh-cut grass is actually a plant's cry for help - it releases chemicals as a distress signal.",
+            "Bananas are berries, but strawberries aren't - strawberries are actually aggregate accessory fruits.",
+            "A cockroach can live for a week without its head.",
+            "The Great Wall of China isn't visible from space with the naked eye.",
+            "Your body contains about 37.2 trillion cells.",
+            "A day on Venus is longer than its year.",
+            "Cleopatra lived closer to the moon landing than to the construction of the Great Pyramid.",
+            "Wombats produce cube-shaped droppings.",
+            "Cows have best friends and get stressed when separated from them.",
+            "A group of crows is called a 'murder'.",
+            "The fingerprints of koalas are so similar to humans that they could confuse crime scene investigators.",
+            "Scotland's national animal is a unicorn.",
+            "Sloths only defecate once a week.",
+            "The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion of the iron.",
+            "Piranhas are attracted to the smell of blood in the water.",
+            "Sharks have been around longer than dinosaurs.",
+            "Otters hold hands when they sleep so they don't drift apart.",
+            "The flea can jump 350 times its own body length.",
+            "A group of pelicans is called a 'pouch'.",
+            "Polar bears have black skin under their white fur.",
+            "Butterflies taste with their feet.",
+            "An emu cannot walk backwards - which is why it's on the Australian coat of arms.",
+            "The only mammal that cannot jump is the elephant.",
+            "A giraffe's tongue can be up to 20 inches long.",
+            "Dolphins are the only animals that give birth to babies with teeth.",
+            "Starfish don't have hearts, brains, or blood."
+        ];
+
+        let currentFactIndex = -1;
+        let usedFacts = [];
+
+        function getRandomFact() {
+            let randomIndex;
+            // Reset if all facts have been used
+            if (usedFacts.length === facts.length) {
+                usedFacts = [];
+            }
+            // Get a random fact that hasn't been used yet
+            do {
+                randomIndex = Math.floor(Math.random() * facts.length);
+            } while (usedFacts.includes(randomIndex));
+
+            usedFacts.push(randomIndex);
+            currentFactIndex = randomIndex;
+            return facts[randomIndex];
+        }
+
+        function displayNewFact() {
+            const fact = getRandomFact();
+            document.getElementById('fact').textContent = fact;
+            document.getElementById('factNumber').textContent = usedFacts.length;
+            document.getElementById('totalFacts').textContent = facts.length;
+        }
+
+        function copyFact() {
+            const factText = document.getElementById('fact').textContent;
+            navigator.clipboard.writeText(factText).then(() => {
+                alert('Fact copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy fact.');
+            });
+        }
+
+        function shareOnTwitter() {
+            const factText = document.getElementById('fact').textContent;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(factText)} 🧠 #RandomFacts`;
+            window.open(twitterUrl, '_blank');
+        }
+
+        // Display the first fact on page load
+        window.addEventListener('load', displayNewFact);
+    </script>
+</body>
+</html>
